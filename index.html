@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Abasto Pedidos — Lupey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --moss:#1F2B22;
+    --moss-2:#28362B;
+    --kraft:#F7F2E7;
+    --kraft-2:#EFE7D6;
+    --squash:#E8862E;
+    --squash-dark:#C96A18;
+    --chili:#C0392B;
+    --leaf:#4A6741;
+    --ink:#2E2A22;
+    --line: rgba(46,42,34,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--kraft);
+    color:var(--ink);
+    font-family:'DM Sans', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .display{font-family:'Bricolage Grotesque', sans-serif;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--moss);
+    color:var(--kraft);
+    padding:22px 20px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(247,242,231,0.06) 1px, transparent 0);
+    background-size: 14px 14px;
+    pointer-events:none;
+  }
+  .brand-row{
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; z-index:1;
+  }
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:#B9C9AE; margin:0 0 4px;
+  }
+  h1.display{
+    font-size:26px; font-weight:700; margin:0; line-height:1.05;
+    color:var(--kraft);
+  }
+  .greet-card{
+    margin-top:16px;
+    background:var(--moss-2);
+    border:1px solid rgba(247,242,231,0.14);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; z-index:1;
+  }
+  .greet-card .who{font-size:15px;}
+  .greet-card .who b{color:var(--squash); font-family:'Bricolage Grotesque',sans-serif; font-size:17px;}
+  .change-code{
+    background:none; border:1px solid rgba(247,242,231,0.3); color:#D9CBB4;
+    font-size:11px; padding:6px 10px; border-radius:20px; cursor:pointer;
+    font-family:'DM Sans'; white-space:nowrap;
+  }
+
+  /* ---------- Gate screen ---------- */
+  .gate{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--moss); padding:24px;
+  }
+  .gate-card{
+    background:var(--kraft); border-radius:20px; padding:32px 26px;
+    max-width:380px; width:100%; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  }
+  .gate-stamp{
+    width:56px; height:56px; border-radius:50%;
+    background:var(--squash); color:var(--moss);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 16px; font-size:26px; font-weight:800;
+    font-family:'Bricolage Grotesque', sans-serif;
+    transform:rotate(-6deg);
+  }
+  .gate-card h2{font-family:'Bricolage Grotesque',sans-serif; font-size:22px; margin:0 0 6px;}
+  .gate-card p{font-size:14px; color:#5b5647; margin:0 0 20px; line-height:1.5;}
+  .gate-card input{
+    width:100%; padding:14px 16px; border-radius:12px; border:2px solid var(--line);
+    font-size:16px; font-family:'IBM Plex Mono', monospace; text-align:center;
+    letter-spacing:.04em; background:#fff; color:var(--ink);
+  }
+  .gate-card input:focus{outline:none; border-color:var(--squash);}
+  .gate-card button{
+    width:100%; margin-top:12px; padding:14px; border:none; border-radius:12px;
+    background:var(--squash); color:#fff; font-size:15px; font-weight:700;
+    font-family:'DM Sans'; cursor:pointer;
+  }
+  .gate-card button:active{background:var(--squash-dark);}
+  .gate-error{color:var(--chili); font-size:13px; margin-top:10px; min-height:18px;}
+
+  /* ---------- Catalog ---------- */
+  main{padding:18px 16px 140px; max-width:640px; margin:0 auto;}
+  .category{margin-top:26px;}
+  .category:first-child{margin-top:8px;}
+  .category-title{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Bricolage Grotesque', sans-serif;
+    font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--leaf); font-weight:700; margin:0 0 10px;
+  }
+  .category-title::after{
+    content:""; flex:1; height:1px; background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 11px);
+  }
+  .product-card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:14px; margin-bottom:10px;
+  }
+  .product-name{font-family:'Bricolage Grotesque',sans-serif; font-weight:700; font-size:16px; margin-bottom:10px;}
+  .presentation-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 0; border-top:1px dashed var(--line);
+  }
+  .presentation-row:first-of-type{border-top:none;}
+  .presentation-info{display:flex; flex-direction:column;}
+  .presentation-label{font-size:13.5px; font-weight:500;}
+  .presentation-price{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--squash-dark); margin-top:1px;}
+  .qty-control{display:flex; align-items:center; gap:0; border:1.5px solid var(--line); border-radius:10px; overflow:hidden;}
+  .qty-control button{
+    width:32px; height:32px; border:none; background:var(--kraft-2); font-size:17px;
+    color:var(--ink); cursor:pointer; font-family:'DM Sans'; line-height:1;
+  }
+  .qty-control input{
+    width:38px; text-align:center; border:none; font-family:'IBM Plex Mono',monospace;
+    font-size:14px; -moz-appearance:textfield;
+  }
+  .qty-control input::-webkit-outer-spin-button,
+  .qty-control input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+
+  /* ---------- Cart bar ---------- */
+  .cart-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--moss); color:var(--kraft);
+    padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 -8px 24px rgba(0,0,0,0.18);
+  }
+  .cart-bar.hidden{display:none;}
+  .cart-info{font-size:13px; color:#C7D2BE;}
+  .cart-total{font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:700; color:#fff;}
+  .cart-bar button{
+    background:var(--squash); color:#fff; border:none; padding:13px 20px;
+    border-radius:12px; font-weight:700; font-size:14.5px; font-family:'DM Sans'; cursor:pointer;
+  }
+
+  /* ---------- Modal (checkout / confirmation) ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(31,43,34,0.55);
+    display:flex; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .overlay.hidden{display:none;}
+  .sheet{
+    background:var(--kraft); width:100%; max-width:480px;
+    border-radius:22px 22px 0 0; padding:24px 20px calc(20px + env(safe-area-inset-bottom));
+    max-height:85vh; overflow-y:auto;
+  }
+  .sheet h3{font-family:'Bricolage Grotesque',sans-serif; font-size:20px; margin:0 0 14px;}
+  .review-line{display:flex; justify-content:space-between; font-size:13.5px; padding:7px 0; border-bottom:1px dashed var(--line);}
+  .review-line b{font-weight:600;}
+  .review-line span.mono{color:var(--squash-dark);}
+  .review-total{display:flex; justify-content:space-between; font-family:'Bricolage Grotesque',sans-serif; font-weight:700; font-size:18px; margin-top:12px; padding-top:12px; border-top:2px solid var(--ink);}
+  .field-label{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:#5b5647; margin:16px 0 6px; font-weight:700;}
+  .sheet input[type=tel]{
+    width:100%; padding:13px 14px; border-radius:10px; border:2px solid var(--line);
+    font-size:15px; font-family:'DM Sans'; background:#fff;
+  }
+  .sheet input[type=tel]:focus{outline:none; border-color:var(--squash);}
+  .sheet-actions{display:flex; gap:10px; margin-top:18px;}
+  .sheet-actions button{flex:1; padding:14px; border-radius:12px; border:none; font-weight:700; font-family:'DM Sans'; font-size:14.5px; cursor:pointer;}
+  .btn-secondary{background:var(--kraft-2); color:var(--ink);}
+  .btn-primary{background:var(--squash); color:#fff;}
+  .btn-primary:disabled{opacity:.6;}
+
+  .confirm-icon{
+    width:60px; height:60px; border-radius:50%; background:var(--leaf); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 14px;
+  }
+  .confirm-center{text-align:center;}
+
+  .empty-note{text-align:center; color:#7a7563; font-size:13.5px; padding:40px 20px;}
+</style>
+</head>
+<body>
+
+<!-- GATE: primer ingreso -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-stamp">L</div>
+    <h2 class="display">Abasto Pedidos</h2>
+    <p>Ingresa el código que te dio Lupey para hacer tu pedido.</p>
+    <input type="text" id="codigo-input" placeholder="Tu código" autocomplete="off" autocapitalize="off">
+    <button id="btn-ingresar">Ingresar</button>
+    <div class="gate-error" id="gate-error"></div>
+  </div>
+</div>
+
+<!-- APP: catálogo -->
+<div id="app" style="display:none;">
+  <header>
+    <div class="brand-row">
+      <div>
+        <p class="brand-eyebrow mono">Lupey</p>
+        <h1 class="display">Abasto Pedidos</h1>
+      </div>
+    </div>
+    <div class="greet-card">
+      <span class="who">Pedido para <b id="razon-social"></b></span>
+      <button class="change-code" id="btn-cambiar">Cambiar código</button>
+    </div>
+  </header>
+
+  <main id="catalogo"></main>
+
+  <div class="cart-bar hidden" id="cart-bar">
+    <div>
+      <div class="cart-info" id="cart-items">0 productos</div>
+      <div class="cart-total mono" id="cart-total">S/ 0.00</div>
+    </div>
+    <button id="btn-revisar">Revisar pedido</button>
+  </div>
+</div>
+
+<!-- MODAL: revisar y enviar -->
+<div class="overlay hidden" id="overlay-revisar">
+  <div class="sheet">
+    <h3 class="display">Revisa tu pedido</h3>
+    <div id="review-lines"></div>
+    <div class="review-total"><span>Total</span><span class="mono" id="review-total-amount">S/ 0.00</span></div>
+    <div class="field-label">Tu teléfono</div>
+    <input type="tel" id="telefono-input" placeholder="Ej. 987654321">
+    <div class="sheet-actions">
+      <button class="btn-secondary" id="btn-seguir-comprando">Seguir eligiendo</button>
+      <button class="btn-primary" id="btn-enviar-pedido">Enviar pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: confirmación -->
+<div class="overlay hidden" id="overlay-confirm">
+  <div class="sheet confirm-center">
+    <div class="confirm-icon">✓</div>
+    <h3 class="display">¡Pedido enviado!</h3>
+    <p style="color:#5b5647; font-size:14px;">Lupey ya recibió tu pedido y se pondrá en contacto para coordinar la entrega.</p>
+    <div class="sheet-actions">
+      <button class="btn-primary" id="btn-nuevo-pedido" style="width:100%;">Hacer otro pedido</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ⚠️ Pega aquí la URL de tu Apps Script implementado como aplicación web.
+  const API_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';
+
+  const CATEGORIA_ORDEN = ['Verduras', 'Tubérculos', 'Frutas', 'Especias'];
+
+  let productos = [];
+  let cart = {}; // key: producto|presentacion -> {producto, presentacion, precio, cantidad}
+
+  const gate = document.getElementById('gate');
+  const app = document.getElementById('app');
+  const gateError = document.getElementById('gate-error');
+
+  function saveSession(codigo, razonSocial){
+    localStorage.setItem('abasto_codigo', codigo);
+    localStorage.setItem('abasto_razon', razonSocial);
+  }
+  function clearSession(){
+    localStorage.removeItem('abasto_codigo');
+    localStorage.removeItem('abasto_razon');
+  }
+  function getSession(){
+    return {
+      codigo: localStorage.getItem('abasto_codigo'),
+      razon: localStorage.getItem('abasto_razon')
+    };
+  }
+
+  async function validarCodigo(codigo){
+    const res = await fetch(`${API_URL}?action=cliente&codigo=${encodeURIComponent(codigo)}`);
+    return res.json();
+  }
+
+  async function cargarCatalogo(){
+    const res = await fetch(`${API_URL}?action=catalogo`);
+    const data = await res.json();
+    return data.productos || [];
+  }
+
+  function renderCatalogo(){
+    const cont = document.getElementById('catalogo');
+    cont.innerHTML = '';
+
+    if (productos.length === 0){
+      cont.innerHTML = '<div class="empty-note">Aún no hay productos cargados. Escríbele a Lupey.</div>';
+      return;
+    }
+
+    // agrupar por producto -> presentaciones, dentro de cada categoría
+    const porCategoria = {};
+    productos.forEach(p => {
+      const cat = p.Categoria || 'Otros';
+      if (!porCategoria[cat]) porCategoria[cat] = {};
+      if (!porCategoria[cat][p.Producto]) porCategoria[cat][p.Producto] = [];
+      porCategoria[cat][p.Producto].push(p);
+    });
+
+    const categorias = Object.keys(porCategoria).sort((a,b) => {
+      const ia = CATEGORIA_ORDEN.indexOf(a), ib = CATEGORIA_ORDEN.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+
+    categorias.forEach(cat => {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'category';
+      catDiv.innerHTML = `<div class="category-title">${cat}</div>`;
+
+      Object.keys(porCategoria[cat]).forEach(nombreProd => {
+        const presentaciones = porCategoria[cat][nombreProd];
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `<div class="product-name">${nombreProd}</div>`;
+
+        presentaciones.forEach(p => {
+          const key = `${p.Producto}|${p.Presentacion}`;
+          const row = document.createElement('div');
+          row.className = 'presentation-row';
+          row.innerHTML = `
+            <div class="presentation-info">
+              <span class="presentation-label">${p.Presentacion}</span>
+              <span class="presentation-price mono">S/ ${Number(p.Precio).toFixed(2)}</span>
+            </div>
+            <div class="qty-control">
+              <button data-action="menos" data-key="${key}">−</button>
+              <input type="number" min="0" value="${cart[key]?.cantidad || 0}" data-key="${key}" inputmode="numeric">
+              <button data-action="mas" data-key="${key}">+</button>
+            </div>
+          `;
+          card.appendChild(row);
+
+          row.querySelector('[data-action="menos"]').addEventListener('click', () => cambiarCantidad(p, -1));
+          row.querySelector('[data-action="mas"]').addEventListener('click', () => cambiarCantidad(p, 1));
+          row.querySelector('input[type=number]').addEventListener('change', (e) => {
+            setCantidad(p, parseInt(e.target.value) || 0);
+          });
+        });
+
+        catDiv.appendChild(card);
+      });
+
+      cont.appendChild(catDiv);
+    });
+  }
+
+  function cambiarCantidad(p, delta){
+    const key = `${p.Producto}|${p.Presentacion}`;
+    const actual = cart[key]?.cantidad || 0;
+    setCantidad(p, Math.max(0, actual + delta));
+  }
+
+  function setCantidad(p, cantidad){
+    const key = `${p.Producto}|${p.Presentacion}`;
+    if (cantidad <= 0){
+      delete cart[key];
+    } else {
+      cart[key] = { producto: p.Producto, presentacion: p.Presentacion, precio: Number(p.Precio), cantidad };
+    }
+    renderCatalogo();
+    updateCartBar();
+  }
+
+  function updateCartBar(){
+    const bar = document.getElementById('cart-bar');
+    const items = Object.values(cart);
+    const totalItems = items.reduce((s,i) => s + i.cantidad, 0);
+    const totalMonto = items.reduce((s,i) => s + i.cantidad * i.precio, 0);
+
+    if (totalItems === 0){
+      bar.classList.add('hidden');
+      return;
+    }
+    bar.classList.remove('hidden');
+    document.getElementById('cart-items').textContent = `${totalItems} producto${totalItems === 1 ? '' : 's'}`;
+    document.getElementById('cart-total').textContent = `S/ ${totalMonto.toFixed(2)}`;
+  }
+
+  function abrirRevision(){
+    const items = Object.values(cart);
+    const cont = document.getElementById('review-lines');
+    cont.innerHTML = '';
+    let total = 0;
+    items.forEach(i => {
+      total += i.cantidad * i.precio;
+      const line = document.createElement('div');
+      line.className = 'review-line';
+      line.innerHTML = `<b>${i.producto} — ${i.presentacion}</b><span class="mono">${i.cantidad} x S/${i.precio.toFixed(2)}</span>`;
+      cont.appendChild(line);
+    });
+    document.getElementById('review-total-amount').textContent = `S/ ${total.toFixed(2)}`;
+    document.getElementById('overlay-revisar').classList.remove('hidden');
+  }
+
+  async function enviarPedido(){
+    const telefono = document.getElementById('telefono-input').value.trim();
+    if (!telefono){
+      alert('Por favor deja un teléfono de contacto.');
+      return;
+    }
+    const session = getSession();
+    const btn = document.getElementById('btn-enviar-pedido');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const items = Object.values(cart).map(i => ({
+      producto: i.producto, presentacion: i.presentacion, cantidad: i.cantidad, precioUnit: i.precio
+    }));
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'pedido',
+          codigo: session.codigo,
+          razonSocial: session.razon,
+          telefono: telefono,
+          items: items
+        })
+      });
+      document.getElementById('overlay-revisar').classList.add('hidden');
+      document.getElementById('overlay-confirm').classList.remove('hidden');
+      cart = {};
+      renderCatalogo();
+      updateCartBar();
+    } catch (err){
+      alert('No se pudo enviar el pedido. Revisa tu conexión e intenta de nuevo.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar pedido';
+    }
+  }
+
+  async function iniciarApp(){
+    const session = getSession();
+    if (!session.codigo){
+      gate.style.display = 'flex';
+      app.style.display = 'none';
+      return;
+    }
+    gate.style.display = 'none';
+    app.style.display = 'block';
+    document.getElementById('razon-social').textContent = session.razon;
+    productos = await cargarCatalogo();
+    renderCatalogo();
+    updateCartBar();
+  }
+
+  document.getElementById('btn-ingresar').addEventListener('click', async () => {
+    const codigo = document.getElementById('codigo-input').value.trim();
+    if (!codigo) return;
+    gateError.textContent = '';
+    const btn = document.getElementById('btn-ingresar');
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    try {
+      const data = await validarCodigo(codigo);
+      if (data.valido){
+        saveSession(codigo, data.razonSocial);
+        iniciarApp();
+      } else {
+        gateError.textContent = 'Código no válido. Verifica con Lupey.';
+      }
+    } catch(err){
+      gateError.textContent = 'Error de conexión. Intenta de nuevo.';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Ingresar';
+    }
+  });
+
+  document.getElementById('codigo-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('btn-ingresar').click();
+  });
+
+  document.getElementById('btn-cambiar').addEventListener('click', () => {
+    if (confirm('¿Deseas cambiar de código?')){
+      clearSession();
+      cart = {};
+      iniciarApp();
+    }
+  });
+
+  document.getElementById('btn-revisar').addEventListener('click', abrirRevision);
+  document.getElementById('btn-seguir-comprando').addEventListener('click', () => {
+    document.getElementById('overlay-revisar').classList.add('hidden');
+  });
+  document.getElementById('btn-enviar-pedido').addEventListener('click', enviarPedido);
+  document.getElementById('btn-nuevo-pedido').addEventListener('click', () => {
+    document.getElementById('overlay-confirm').classList.add('hidden');
+  });
+
+  iniciarApp();
+</script>
+</body>
+</html>

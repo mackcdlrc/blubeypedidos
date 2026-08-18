@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Abasto Pedidos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --moss:#1F2B22; --kraft:#F7F2E7; --kraft-2:#EFE7D6;
+    --squash:#E8862E; --squash-dark:#C96A18; --chili:#C0392B; --leaf:#4A6741;
+    --ink:#2E2A22; --line: rgba(46,42,34,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--kraft); color:var(--ink); font-family:'DM Sans',sans-serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  header{background:var(--moss); color:var(--kraft); padding:18px 20px;}
+  header h1{font-family:'Bricolage Grotesque',sans-serif; font-size:20px; margin:0;}
+  header p{margin:4px 0 0; font-size:12px; color:#B9C9AE;}
+  main{max-width:720px; margin:0 auto; padding:20px 16px 60px;}
+
+  .gate{min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--moss); padding:24px;}
+  .gate-card{background:var(--kraft); border-radius:18px; padding:28px; max-width:340px; width:100%; text-align:center;}
+  .gate-card h2{font-family:'Bricolage Grotesque',sans-serif; margin:0 0 14px;}
+  .gate-card input{width:100%; padding:12px; border-radius:10px; border:2px solid var(--line); font-size:15px; margin-bottom:10px;}
+  .gate-card button{width:100%; padding:12px; border:none; border-radius:10px; background:var(--squash); color:#fff; font-weight:700; cursor:pointer;}
+
+  .tabs{display:flex; gap:8px; margin-bottom:18px;}
+  .tab{padding:9px 16px; border-radius:20px; background:var(--kraft-2); font-size:13.5px; font-weight:700; cursor:pointer; border:none;}
+  .tab.active{background:var(--moss); color:var(--kraft);}
+
+  .section{display:none;}
+  .section.active{display:block;}
+
+  .card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px;}
+  .card-title{font-family:'Bricolage Grotesque',sans-serif; font-weight:700; font-size:15px; margin-bottom:2px;}
+  .card-sub{font-size:12.5px; color:#7a7563;}
+  .card-row{display:flex; justify-content:space-between; align-items:center;}
+  .badge{font-size:11px; padding:3px 8px; border-radius:20px; font-weight:700;}
+  .badge.si{background:#E4EEE0; color:var(--leaf);}
+  .badge.no{background:#F3DEDB; color:var(--chili);}
+  .card-actions{display:flex; gap:8px; margin-top:10px;}
+  .card-actions button{font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--kraft-2); cursor:pointer;}
+
+  .form-box{background:#fff; border:2px dashed var(--line); border-radius:14px; padding:16px; margin-bottom:20px;}
+  .form-box h3{font-family:'Bricolage Grotesque',sans-serif; font-size:15px; margin:0 0 12px;}
+  .field{margin-bottom:10px;}
+  .field label{display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:#5b5647; margin-bottom:4px;}
+  .field input, .field select{width:100%; padding:10px 12px; border-radius:9px; border:2px solid var(--line); font-size:14px; font-family:'DM Sans';}
+  .form-row{display:flex; gap:10px;}
+  .form-row .field{flex:1;}
+  .btn-guardar{width:100%; padding:12px; border:none; border-radius:10px; background:var(--squash); color:#fff; font-weight:700; cursor:pointer; margin-top:6px;}
+  .btn-cancelar{width:100%; padding:10px; border:none; border-radius:10px; background:transparent; color:#7a7563; font-size:13px; cursor:pointer; margin-top:4px;}
+
+  .empty{text-align:center; color:#7a7563; padding:30px; font-size:13.5px;}
+  .link-sheet{display:block; text-align:center; margin-top:20px; font-size:13px; color:var(--leaf); font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h2 class="display">Panel Admin</h2>
+    <input type="password" id="admin-key-input" placeholder="Clave de administrador">
+    <button id="btn-login">Entrar</button>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <h1>Abasto Pedidos — Panel Admin</h1>
+    <p>Lupey · Gestión de clientes y productos</p>
+  </header>
+  <main>
+    <div class="tabs">
+      <button class="tab active" data-tab="clientes">Clientes</button>
+      <button class="tab" data-tab="productos">Productos</button>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="section active" id="section-clientes">
+      <div class="form-box">
+        <h3 id="cliente-form-title">Nuevo cliente</h3>
+        <div class="field">
+          <label>Código de acceso</label>
+          <input type="text" id="c-codigo" placeholder="ej. rosanautica">
+        </div>
+        <div class="field">
+          <label>Razón social / negocio</label>
+          <input type="text" id="c-razon" placeholder="ej. Restaurante Rosa Náutica">
+        </div>
+        <button class="btn-guardar" id="btn-guardar-cliente">Guardar cliente</button>
+        <button class="btn-cancelar" id="btn-cancelar-cliente" style="display:none;">Cancelar edición</button>
+      </div>
+      <div id="lista-clientes"></div>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <div class="section" id="section-productos">
+      <div class="form-box">
+        <h3 id="producto-form-title">Nuevo producto</h3>
+        <div class="field">
+          <label>Nombre del producto</label>
+          <input type="text" id="p-nombre" placeholder="ej. Papa">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Categoría</label>
+            <select id="p-categoria">
+              <option>Verduras</option>
+              <option>Tubérculos</option>
+              <option>Frutas</option>
+              <option>Especias</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Presentación</label>
+            <select id="p-presentacion">
+              <option>Kilo</option>
+              <option>Unidad</option>
+              <option>Atado</option>
+              <option>Saco</option>
+              <option>Paquete</option>
+              <option>Bolsa</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Precio (S/)</label>
+          <input type="number" step="0.10" id="p-precio" placeholder="ej. 45.00">
+        </div>
+        <button class="btn-guardar" id="btn-guardar-producto">Guardar producto</button>
+        <button class="btn-cancelar" id="btn-cancelar-producto" style="display:none;">Cancelar edición</button>
+      </div>
+      <div id="lista-productos"></div>
+    </div>
+
+    <a class="link-sheet" id="link-sheet" href="#" target="_blank">Abrir Google Sheet con todos los pedidos →</a>
+  </main>
+</div>
+
+<script>
+  // ⚠️ Pega aquí la misma URL de Apps Script que usaste en index.html
+  const API_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';
+
+  let adminKey = '';
+  let editandoCliente = null; // codigo original si se está editando
+  let editandoProducto = null; // id si se está editando
+
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const key = document.getElementById('admin-key-input').value.trim();
+    if (!key) return;
+    adminKey = key;
+    // probamos la clave pidiendo la lista de clientes
+    const res = await fetch(`${API_URL}?action=admin_clientes&key=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    if (data.ok){
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      cargarClientes();
+      cargarProductos();
+    } else {
+      alert('Clave incorrecta.');
+    }
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(`section-${tab.dataset.tab}`).classList.add('active');
+    });
+  });
+
+  // ---------- CLIENTES ----------
+  async function cargarClientes(){
+    const res = await fetch(`${API_URL}?action=admin_clientes&key=${encodeURIComponent(adminKey)}`);
+    const data = await res.json();
+    const cont = document.getElementById('lista-clientes');
+    cont.innerHTML = '';
+    const clientes = data.clientes || [];
+    if (clientes.length === 0){
+      cont.innerHTML = '<div class="empty">Aún no has creado clientes.</div>';
+      return;
+    }
+    clientes.forEach(c => {
+      const activo = String(c.Activo).toUpperCase() !== 'NO';
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-row">
+          <div>
+            <div class="card-title">${c.RazonSocial}</div>
+            <div class="card-sub mono">Código: ${c.Codigo}</div>
+          </div>
+          <span class="badge ${activo ? 'si' : 'no'}">${activo ? 'Activo' : 'Inactivo'}</span>
+        </div>
+        <div class="card-actions">
+          <button data-edit="1">Editar</button>
+          <button data-toggle="1">${activo ? 'Desactivar' : 'Activar'}</button>
+        </div>
+      `;
+      card.querySelector('[data-edit]').addEventListener('click', () => editarCliente(c));
+      card.querySelector('[data-toggle]').addEventListener('click', () => toggleCliente(c, !activo));
+      cont.appendChild(card);
+    });
+  }
+
+  function editarCliente(c){
+    editandoCliente = c.Codigo;
+    document.getElementById('c-codigo').value = c.Codigo;
+    document.getElementById('c-razon').value = c.RazonSocial;
+    document.getElementById('cliente-form-title').textContent = 'Editar cliente';
+    document.getElementById('btn-cancelar-cliente').style.display = 'block';
+  }
+
+  document.getElementById('btn-cancelar-cliente').addEventListener('click', () => {
+    editandoCliente = null;
+    document.getElementById('c-codigo').value = '';
+    document.getElementById('c-razon').value = '';
+    document.getElementById('cliente-form-title').textContent = 'Nuevo cliente';
+    document.getElementById('btn-cancelar-cliente').style.display = 'none';
+  });
+
+  document.getElementById('btn-guardar-cliente').addEventListener('click', async () => {
+    const codigo = document.getElementById('c-codigo').value.trim();
+    const razonSocial = document.getElementById('c-razon').value.trim();
+    if (!codigo || !razonSocial){ alert('Completa código y razón social.'); return; }
+
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'admin_guardarCliente',
+        key: adminKey,
+        codigo, razonSocial,
+        codigoOriginal: editandoCliente
+      })
+    });
+    document.getElementById('btn-cancelar-cliente').click();
+    cargarClientes();
+  });
+
+  async function toggleCliente(c, activo){
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'admin_guardarCliente',
+        key: adminKey,
+        codigo: c.Codigo,
+        razonSocial: c.RazonSocial,
+        activo
+      })
+    });
+    cargarClientes();
+  }
+
+  // ---------- PRODUCTOS ----------
+  async function cargarProductos(){
+    const res = await fetch(`${API_URL}?action=admin_productos&key=${encodeURIComponent(adminKey)}`);
+    const data = await res.json();
+    const cont = document.getElementById('lista-productos');
+    cont.innerHTML = '';
+    const productos = data.productos || [];
+    if (productos.length === 0){
+      cont.innerHTML = '<div class="empty">Aún no has cargado productos.</div>';
+      return;
+    }
+    productos.forEach(p => {
+      const activo = String(p.Activo).toUpperCase() !== 'NO';
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-row">
+          <div>
+            <div class="card-title">${p.Producto} — ${p.Presentacion}</div>
+            <div class="card-sub">${p.Categoria} · <span class="mono">S/ ${Number(p.Precio).toFixed(2)}</span></div>
+          </div>
+          <span class="badge ${activo ? 'si' : 'no'}">${activo ? 'Activo' : 'Inactivo'}</span>
+        </div>
+        <div class="card-actions">
+          <button data-edit="1">Editar</button>
+          <button data-toggle="1">${activo ? 'Desactivar' : 'Activar'}</button>
+        </div>
+      `;
+      card.querySelector('[data-edit]').addEventListener('click', () => editarProducto(p));
+      card.querySelector('[data-toggle]').addEventListener('click', () => toggleProducto(p, !activo));
+      cont.appendChild(card);
+    });
+  }
+
+  function editarProducto(p){
+    editandoProducto = p.ID;
+    document.getElementById('p-nombre').value = p.Producto;
+    document.getElementById('p-categoria').value = p.Categoria;
+    document.getElementById('p-presentacion').value = p.Presentacion;
+    document.getElementById('p-precio').value = p.Precio;
+    document.getElementById('producto-form-title').textContent = 'Editar producto';
+    document.getElementById('btn-cancelar-producto').style.display = 'block';
+  }
+
+  document.getElementById('btn-cancelar-producto').addEventListener('click', () => {
+    editandoProducto = null;
+    document.getElementById('p-nombre').value = '';
+    document.getElementById('p-precio').value = '';
+    document.getElementById('producto-form-title').textContent = 'Nuevo producto';
+    document.getElementById('btn-cancelar-producto').style.display = 'none';
+  });
+
+  document.getElementById('btn-guardar-producto').addEventListener('click', async () => {
+    const producto = document.getElementById('p-nombre').value.trim();
+    const categoria = document.getElementById('p-categoria').value;
+    const presentacion = document.getElementById('p-presentacion').value;
+    const precio = parseFloat(document.getElementById('p-precio').value);
+    if (!producto || isNaN(precio)){ alert('Completa nombre y precio.'); return; }
+
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'admin_guardarProducto',
+        key: adminKey,
+        id: editandoProducto,
+        producto, categoria, presentacion, precio
+      })
+    });
+    document.getElementById('btn-cancelar-producto').click();
+    cargarProductos();
+  });
+
+  async function toggleProducto(p, activo){
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'admin_guardarProducto',
+        key: adminKey,
+        id: p.ID,
+        producto: p.Producto, categoria: p.Categoria, presentacion: p.Presentacion, precio: p.Precio,
+        activo
+      })
+    });
+    cargarProductos();
+  }
+</script>
+</body>
+</html>
